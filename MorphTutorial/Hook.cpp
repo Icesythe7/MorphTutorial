@@ -2,6 +2,14 @@
 
 namespace Hook
 {
+	/// <summary>
+	/// Creates a simple hook.
+	/// </summary>
+	/// <param name="target">The address of the function to hook.</param>
+	/// <param name="handler">The address of the callback function.</param>
+	/// <param name="trampoline">The address of the allocated memory containing the overwritten bytes of the original hooked function.</param>
+	/// <param name="size">The number of bytes of the original function to hook(must be > 5).</param>
+	/// <returns>True if the hook was successful.</returns>
 	bool Create(const uintptr_t target, const uintptr_t* handler, uintptr_t* trampoline, const size_t size)
 	{
 		auto result = false;
@@ -15,11 +23,11 @@ namespace Hook
 			ByteBuffers.emplace_back(hook);
 
 			for (auto i = 0; i < static_cast<int32_t>(size); ++i)
-				hook->data[i] = *reinterpret_cast<BYTE*>(target + i);                                         // copy original bytes to trampoline																							        
+				hook->data[i] = *reinterpret_cast<BYTE*>(target + i);                                   // copy original bytes to trampoline																							        
 
-			hook->data[size] = static_cast<BYTE>(0x68);								                        // push ...
-			*reinterpret_cast<int32_t*>(&hook->data[size + 1]) = target + size;			                    // the address of the next valid instruction in the target
-			hook->data[size + 5] = static_cast<BYTE>(0xC3);							                        // return
+			hook->data[size] = static_cast<BYTE>(0x68);								                    // push ...
+			*reinterpret_cast<int32_t*>(&hook->data[size + 1]) = target + size;			                // the address of the next valid instruction in the target
+			hook->data[size + 5] = static_cast<BYTE>(0xC3);							                    // return
 			*trampoline = reinterpret_cast<uintptr_t>(hook->data);
 			VirtualProtect(reinterpret_cast<LPVOID>(hook->data), size + 6, PAGE_EXECUTE_READWRITE, &tVar);
 
@@ -35,6 +43,13 @@ namespace Hook
 		return result;
 	}
 
+	/// <summary>
+	/// Restores a previously created hook.
+	/// </summary>
+	/// <param name="target">The address of the hooked function to restore.</param>
+	/// <param name="trampoline">The address of the allocated memory containing the overwritten bytes of the hooked function.</param>
+	/// <param name="size">The size of the overwritten bytes in the hooked function.</param>
+	/// <returns>True if restored successfully.</returns>
 	bool Restore(const uintptr_t target, const uintptr_t trampoline, const size_t size)
 	{
 		auto result = false;
@@ -53,6 +68,10 @@ namespace Hook
 		return result;
 	}
 
+	/// <summary>
+	/// Suspends all threads except the thread specified.
+	/// </summary>
+	/// <param name="threadToKeepRunning">The thread to not suspend.</param>
 	void SuspendThreads(const DWORD threadToKeepRunning)
 	{
 		const auto h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
@@ -83,6 +102,9 @@ namespace Hook
 		}
 	}
 
+	/// <summary>
+	/// Resumes all threads.
+	/// </summary>
 	void ResumeThreads()
 	{
 		const auto h = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
