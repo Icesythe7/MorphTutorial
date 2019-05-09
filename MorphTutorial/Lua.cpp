@@ -109,10 +109,4 @@ namespace Lua
 		Error(l, errorMsg);
 		return 0;
 	}
-
-
-	void Test(const uintptr_t luaState)
-	{
-		printf("%d", GetTop(luaState));
-	}
 }
