@@ -49,7 +49,7 @@ namespace MorphTutorial
 	{
 		if (GetAsyncKeyState(VK_F7) & 1)
 		{
-			printf("Mt base address is 0x%X\n", WowFunctions::GetLocalPlayerBase());
+			printf("My base address is 0x%X\n", WowFunctions::GetLocalPlayerBase());
 			for (const auto function : Lua::FunctionsMap)
 			{
 				if (WowFunctions::RegisterFunction(function.first, function.second))
