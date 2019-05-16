@@ -85,7 +85,7 @@ namespace Lua
 	int64_t UpdateModel(const uintptr_t l)
 	{
 		const auto numArgs = GetTop(l);
-		auto errorMsg = "Incorrect number of arguments for [UpdateModel(string unit)]";
+		std::string errorMsg = "Incorrect number of arguments for [UpdateModel(string unit)]";
 
 		if (numArgs == 1
 			&& (errorMsg = "Incorrect parameter(1) type [string expected for unit]", IsString(l, 1)))
@@ -102,9 +102,13 @@ namespace Lua
 				errorMsg = "Invalid unit (nil) [UpdateModel(string unit)]";
 			}
 			else
-				errorMsg = "Invalid command entered for [UpdateModel(string unit)]";
+			{
+				std::stringstream stream;
+				stream << "Invalid command: " << command;
+				errorMsg = stream.str();
+			}
 		}
-		Error(l, errorMsg);
+		Error(l, errorMsg.c_str());
 		return 0;
 	}
 

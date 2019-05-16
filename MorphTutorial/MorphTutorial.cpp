@@ -11,7 +11,11 @@ namespace MorphTutorial
 
 		Hook::SuspendThreads(GetThreadId(MyThread));
 		if (Hook::Create(WowAddresses::OnIdle, reinterpret_cast<uintptr_t*>(&OnUpdate), &OnUpdateTrampoline, 6))
+		{
 			printf("GameLoop successfully hooked\n");
+			if (Hook::Create(WowAddresses::EnterWorld, reinterpret_cast<uintptr_t*>(&OnEnterWorld), &EnterWorldTrampoline, 6))
+				printf("OnEnterWorld successfully hooked\n");
+		}
 		else
 		{
 			printf("GameLoop hook failed... unloading dll in 5 seconds\n");
@@ -33,13 +37,14 @@ namespace MorphTutorial
 
 		Hook::SuspendThreads(GetThreadId(MyThread));
 		if (Hook::Restore(WowAddresses::OnIdle, OnUpdateTrampoline, 6))
-		{
-			const auto conHandle = GetConsoleWindow();
-			FreeConsole();
-			PostMessage(conHandle, WM_CLOSE, 0, 0);
-			Hook::ResumeThreads();
-			FreeLibraryAndExitThread(static_cast<HMODULE>(param), NULL);
-		}
+			if (Hook::Restore(WowAddresses::EnterWorld, EnterWorldTrampoline, 6))
+			{
+				const auto conHandle = GetConsoleWindow();
+				FreeConsole();
+				PostMessage(conHandle, WM_CLOSE, 0, 0);
+				Hook::ResumeThreads();
+				FreeLibraryAndExitThread(static_cast<HMODULE>(param), NULL);
+			}
 		Hook::ResumeThreads(); //failsafe
 
 		return 0;
@@ -62,5 +67,19 @@ namespace MorphTutorial
 		}
 
 		return reinterpret_cast<int32_t(__cdecl*)(float*)>(OnUpdateTrampoline)(a1);
+	}
+
+	void __cdecl OnEnterWorld()
+	{
+		for (const auto function : Lua::FunctionsMap)
+		{
+			if (WowFunctions::RegisterFunction(function.first, function.second))
+			{
+				std::stringstream fName;
+				fName << "print('Registered [" << function.first << "]')" << "\n";
+				WowFunctions::RunLua(fName.str().c_str());
+			}
+		}
+		reinterpret_cast<void(__cdecl*)()>(EnterWorldTrampoline)();
 	}
 }

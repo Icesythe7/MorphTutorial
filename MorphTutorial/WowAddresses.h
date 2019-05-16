@@ -7,9 +7,11 @@ namespace  WowAddresses
 	inline uintptr_t OnIdle = 0x4A8460;
 	inline uintptr_t FrameScriptExecute = 0x819210;
 	inline uintptr_t FrameScriptRegister = 0x817F90;
+	inline uintptr_t FrameScriptUnRegister = 0x817FD0;
 	inline uintptr_t ClntObjMgrGetActivePlayer = 0x4D3790;
 	inline uintptr_t ClntObjMgrObjectPtr = 0x4D4DB0;
 	inline uintptr_t UpdateDisplayInfo = 0x73E410;
+	inline uintptr_t EnterWorld = 0x528010;
 	inline uintptr_t LuaGetState = 0x84DBD0;
 	inline uintptr_t LuaIsString = 0x84DF60;
 	inline uintptr_t LuaToString = 0x84E0E0;

@@ -42,6 +42,16 @@ namespace WowFunctions
 	}
 
 	/// <summary>
+	/// UnRegisters an lua function.
+	/// </summary>
+	/// <param name="luaFunction">The name of the lua function to be unregistered.</param>
+	/// <returns></returns>
+	int32_t UnRegisterFunction(const char* luaFunction)
+	{
+		return reinterpret_cast<int32_t(__cdecl*)(const char*)>(WowAddresses::FrameScriptUnRegister)(luaFunction);
+	}
+
+	/// <summary>
 	/// Updates the units display.
 	/// </summary>
 	/// <param name="unit">The unit to update.</param>
